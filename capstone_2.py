@@ -70,6 +70,7 @@ df['total_guests']=df['total_guests'].astype('int64')
 df['total_stay']=df['stays_in_weekend_nights']
 print(df.total_stay)
 # 1] get booking percentage by hotel
+#to seprate both city and resort booking we use groupby method
 print('1] start')
 grouped_by_hotel = df.groupby('hotel')
 print('1')
@@ -85,6 +86,7 @@ print('1] end')
 
 # 2] % of sum of booking that arent cancelled by month
 print('2] start')
+#adding booking cancelation and confrimed and groupby for city & Resort
 sum_of_booking_arnt_cancelled=(df.groupby('hotel')['previous_bookings_not_canceled'].sum())
 x=pd.DataFrame(sum_of_booking_arnt_cancelled).reset_index()
 print(x)
@@ -93,6 +95,7 @@ sns.barplot(x = x['hotel'], y = x['previous_bookings_not_canceled'] )
 # plt.show()
 print('2] end')
 # 3] stays in weekday nights by both hotels
+#count total stays weekday nights for City & Resort hotel
 print('3] start')
 stays_by_weeknights=df['stays_in_week_nights'].value_counts()
 print(stays_by_weeknights)
@@ -105,6 +108,7 @@ print('3] end')
 
 #4] stays in weekend nights by both hotels
 print('4] start')
+#similarly counts total stays weekend nights for both type hotels
 stays_by_weekend_nights=df['stays_in_weekend_nights'].value_counts()
 print(stays_by_weekend_nights)
 
@@ -115,7 +119,8 @@ plt.ylabel('Total Count ',fontsize = 15)
 print('4]end')
 # 5] sum of repeated guests by month wise
 print('5] start')
-
+#count total no of repeated custmors by month & index with new dataframe
+#use sum firstly and after use reset index function
 rep_guests=df.groupby(by=['hotel','arrival_date_month'])['is_repeated_guest'].sum()
 y=pd.DataFrame(rep_guests).reset_index()
 print(y)
@@ -126,8 +131,10 @@ plt.xlabel('hotel',fontsize=17)
 # plt.show()
 print('5] end')
 
-# 5]calculate cancellation by months
+# 6]calculate cancellation by months
 print('6] start')
+#group by total cancelation for both hotels
+#take minimum one cancelation 
 cancelled_data=df[df['is_canceled']==1]
 cancelled=cancelled_data.groupby('arrival_date_month')
 x=pd.DataFrame(cancelled.size()).rename(columns={0:'total_cancelled_bookings'})
@@ -146,6 +153,7 @@ print('6] end')
 
 # 7] number of repeated guest type
 print('7] start')
+#count totlal repeted guest for that use value count function and seprated with groupby funtion
 customer=df.groupby(by=['hotel','is_repeated_guest'])['customer_type'].value_counts()
 print(customer)
 
@@ -158,6 +166,8 @@ print('7] end')
 
 # 8] no of adults by hotel
 print('8] start')
+#similarly just count total no of adults 
+#use value count function
 no_of_adults=df.groupby('hotel')['adults'].value_counts()
 print(no_of_adults)
 plt.rcParams['figure.figsize'] = (12,5)
@@ -170,6 +180,7 @@ print('8] end')
 # 9] Hotel having High Cancelation Rate
 
 print('9] start')
+#for that take minimum one canceled booking weekely basis
 cancelled_data_over_week_no=df[df['is_canceled']==1]
 cancel=cancelled_data_over_week_no.groupby('hotel')
 x=pd.DataFrame(cancel.size()).rename(columns={0:'total_cancelled_bookings'})
@@ -188,16 +199,19 @@ sns.barplot(x=z.index,y=z['cancel%']).set_title("Hotel having High Cancelation R
 print('9] end')
 # 10] which hotels has preferred for breakfast and dinner
 print('10] start')
+#take data of hotel who has atleast avilabilty of one time breakfast
 bb=df[df['meal']=='BB']
 bbc=bb.groupby('hotel')
 df_bb=pd.DataFrame(bbc.size()).rename(columns={0:'BB'})
 print(df_bb['BB'])
 
+#take data of hotel who has atleast avilabilty of one time lunch
 fb=df[df['meal']=='FB']
 fbc=fb.groupby('hotel')
 fbc_df=pd.DataFrame(fbc.size()).rename(columns={0:'FB'})
 print(fbc_df['FB'])
 
+#take data of hotel who has atleast avilabilty of one time dinner
 hb=df[df['meal']=="HB"]
 hbc=hb.groupby('hotel')
 hbc_df=pd.DataFrame(hbc.size()).rename(columns={0:'HB'})
@@ -215,6 +229,7 @@ print('10] end')
 
 # 11] get duration of stays in each Hotel
 print('11] start')
+#count total no of stays min one day and maximum 20 days
 not_canceled=df[df['is_canceled']==0]
 x=not_canceled[not_canceled['total_stay']<20]
 
@@ -223,7 +238,8 @@ sns.countplot(x=x['total_stay'],hue=x['hotel'])
 # plt.show()
 
 print('11] end')
-# 12] get number of arrival per year
+# 12] get number of arrival per year 
+#count all custmors who books hotels room in one year
 
 print(' 12] start')
 x=df['arrival_date_year'].value_counts()
@@ -238,6 +254,8 @@ print('12] end')
 
 # 13] get arrival date month
 print('13] start')
+#count all custmors who books hotels room in one month
+
 arr_per_month=df['arrival_date_month'].value_counts()
 print(arr_per_month)
 sns.countplot(data = period_arrival, x = 'arrival_date_month', hue = 'hotel').set_title('Number of arrival per month',fontsize=20)
@@ -246,8 +264,10 @@ plt.ylabel('Total Count', fontsize = 15)
 # plt.show()
 print('xp2')
 print('13] end')
+
 # 14] count arrival per day
 print('14] start')
+#count all custmors who books hotels room in one day
 arr_per_day=df['arrival_date_day_of_month'].value_counts()
 print(arr_per_day)
 
@@ -257,8 +277,10 @@ plt.xlabel('Arrival Day', fontsize = 15)
 plt.ylabel('Total Count ',fontsize = 15)
 # plt.show()
 print('14] end')
+
 # 15] average adr per month by hotel
 print('15] start')
+#calculate adr for each hotel using total arrival for city or resort divided with total arrival of all types hotel multiply by hundred
 percentage_col=df.groupby(by=['hotel','arrival_date_month'])['adr'].sum()/[df[df['hotel']=='Resort Hotel']['adr'].sum()]*100
 print(percentage_col)
 percentage_col.plot(figsize=(10,7),kind='bar',log=False)
@@ -270,6 +292,7 @@ print('15] end')
 
 # 16] parkings required per month
 print('16] start')
+#take atleast one parking for hotels using normalize function 
 x=df.groupby('hotel')['required_car_parking_spaces'].value_counts(normalize=False)
 plt.figure(figsize=(15,5))
 sns.countplot(data = df, x = 'required_car_parking_spaces', hue = 'hotel').set_title('required_car_parking_spaces', fontsize = 20)
@@ -278,8 +301,10 @@ plt.ylabel('Total Count ',fontsize = 15)
 # plt.show()
 print(x)
 print('16] end')
+
 # 17] which market segment has more customers by hotel
 print('17] start')
+#seprated total no of custmors using value count function
 mark_seg=df.groupby('hotel')['market_segment'].value_counts()
 print(mark_seg)
 
@@ -291,6 +316,7 @@ print('17] end')
 
 # 18] get types of distribution channel
 print('18] start')
+#seprated total no of booking which comes from diffrent types of distribution network using value count function
 dist_channel=df['distribution_channel'].value_counts()
 print(dist_channel)
 plt.figure(figsize=(12,5))
@@ -299,8 +325,12 @@ plt.xlabel('Type of distribution channel', fontsize = 15)
 plt.ylabel('Total Count ',fontsize = 15)
 # plt.show()
 print('18] end')
+
 #19] get top 5 countries by city and resort hotels
 print('19] start')
+#first counts total booking 
+#second sort total booking with country wise
+#fianally ascending the data high to low counts and take top 5 no of booking
 hotel_country = df.groupby('country',as_index=True)['hotel'].value_counts()
 hotel_country = hotel_country.sort_values(ascending=False)
 hotel_country_df = pd.DataFrame(hotel_country)
@@ -312,6 +342,7 @@ print('19] end')
 
 # 20] most preffered type of deposit
 print('20] start')
+#count total booking and seprated with deposite type using value count
 dep_type=df.groupby('hotel')['deposit_type'].value_counts()
 print(dep_type)
 plt.figure(figsize=(12,5))
@@ -321,8 +352,9 @@ plt.xlabel('Deposit Types',fontsize = 15)
 # plt.show()
 print('20] end')
 
-# 21] chect reservation status by hotel
+# 21] check reservation status by hotel
 print('21] start')
+#seprated reservation status using value count function
 res_stat=df.groupby('hotel')['reservation_status'].value_counts()
 print(res_stat)
 x=df[['hotel','reservation_status']]
@@ -330,6 +362,7 @@ plt.figure(figsize=(7,7))
 sns.countplot(data =x, x = 'reservation_status', hue = 'hotel').set_title('Reservation status by hotel',fontsize=20)
 # plt.show()
 print('21] end')
+
 # 22] get the most correlated data's
 print('22] start')
 corr_list=df[['lead_time','previous_cancellations','previous_bookings_not_canceled','booking_changes','days_in_waiting_list','adr','required_car_parking_spaces','total_of_special_requests','total_stay','total_guests']]
