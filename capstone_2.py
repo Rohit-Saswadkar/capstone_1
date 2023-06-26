@@ -1,3 +1,4 @@
+# Capstone 1 - Hotel booking analysis
 # all CSV data
 import numpy
 import pandas as pd
